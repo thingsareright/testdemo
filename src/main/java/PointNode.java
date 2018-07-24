@@ -12,8 +12,6 @@ public class PointNode {
         nextPointList = new ArrayList<Point>();
     }
 
-
-
     public int getPointId() {
         return pointId;
     }
