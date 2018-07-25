@@ -1,3 +1,7 @@
+package util;
+
+import test1.MyEdge;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;

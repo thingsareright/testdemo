@@ -1,4 +1,8 @@
-import java.util.*;
+package test1;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * 这个主要用来实现邻接表的头节点

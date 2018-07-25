@@ -1,7 +1,7 @@
-import com.sun.javafx.geom.Edge;
-import org.omg.PortableInterceptor.INACTIVE;
+package test1;
 
 import java.util.*;
+
 /**
  * 这是一个无向连通图的邻接矩阵类
  */
@@ -196,6 +196,8 @@ public class ConnectedGraph {
         return myMSTEdgeList;
     }
 
+
+
     /**
      * 向外界输出边权重之和
      * @return
@@ -209,5 +211,13 @@ public class ConnectedGraph {
         }
 
         return totalWeight;
+    }
+
+    public int getSize() {
+        return size;
+    }
+
+    public void setSize(int size) {
+        this.size = size;
     }
 }
