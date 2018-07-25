@@ -89,34 +89,15 @@ public class ShortestPathFloyd {
      * @return
      */
     public ArrayList<Integer> getShortPath(int start, int end){
-
-        if (pathMatrix[start][end] == Integer.MAX_VALUE){
-            return null;
+        ArrayList<Integer> integers = new ArrayList<Integer>();
+        integers.add(start);
+        int k = preTable[start][end];
+        while (k != end){
+            integers.add(k);
+            k = preTable[k][end];
         }
-
-        //由于我们只能通过前驱表逆向查找最短路径，所以这里要反过来一下
-        ArrayList<Integer> pointIntegers = new ArrayList<Integer>();
-        int pointTemp = end;
-        pointIntegers.add(start);
-        //暂时存储一个数组，逆序存放路径点
-        int[] pointTempInts = new int[matrix.length];
-        int i = 0;
-        int n = end;
-        pointTempInts[i++] = end;
-        //查找前驱表，直到查到起点为止
-        while (true ){
-            int newTemp = preTable[start][pointTemp];
-            if (newTemp == pointTemp){
-                break;
-            }
-            pointTemp = newTemp;
-            pointTempInts[i++] = newTemp;
-
-        }
-        for (int j=i-1; j>=0; j--){
-            pointIntegers.add(pointTempInts[j]);
-        }
-        return pointIntegers;
+        integers.add(end);
+        return integers;
     }
 
     public void disPlay(){
@@ -133,23 +114,30 @@ public class ShortestPathFloyd {
         shortestPathFloyd.createGraph();
         shortestPathFloyd.floyd();
         Scanner sc = new Scanner(System.in);
-        System.out.println("请输入起始点：");
-        int start = sc.nextInt();
-        System.out.println("请输入终止点：");
-        int end = sc.nextInt();
 
-        System.out.println("最短路径顶点序列：");
-        shortestPathFloyd.disPlay();
-        ArrayList<Integer> integers = shortestPathFloyd.getShortPath(start, end);
-        if (null == integers){
-            System.out.println("此两点不连通！");
-            return;
-        }
-        Iterator<Integer> integerIterator = integers.listIterator();
+        int flag = 1;
+        while (0 != flag){
+            System.out.println("请输入起始点：");
+            int start = sc.nextInt();
+            System.out.println("请输入终止点：");
+            int end = sc.nextInt();
 
-        while (integerIterator.hasNext()){
-            System.out.println(integerIterator.next());
+            System.out.println("最短路径顶点序列：");
+            //shortestPathFloyd.disPlay();
+            ArrayList<Integer> integers = shortestPathFloyd.getShortPath(start, end);
+            if (null == integers){
+                System.out.println("此两点不连通！");
+                return;
+            }
+            Iterator<Integer> integerIterator = integers.listIterator();
+
+            while (integerIterator.hasNext()){
+                System.out.println(integerIterator.next());
+            }
+            System.out.println("路径权值：" + shortestPathFloyd.pathMatrix[start][end]);
+
+            flag = sc.nextInt();
         }
-        System.out.println("路径权值：" + shortestPathFloyd.pathMatrix[start][end]);
+
     }
 }
