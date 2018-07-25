@@ -1,3 +1,4 @@
+import com.sun.javafx.geom.Edge;
 import org.omg.PortableInterceptor.INACTIVE;
 
 import java.util.*;
@@ -61,6 +62,7 @@ public class ConnectedGraph {
                 System.out.println("( " + point.getPointId() + " , " + point.getWeight() + ")");
             }
         }
+        System.out.println("Totally edge number: " + pointEdgeList.size());
     }
 
     /**
@@ -76,16 +78,18 @@ public class ConnectedGraph {
         pointQueue.offer(pointId);
         while (0 != pointQueue.size()){
             Integer one = pointQueue.poll();
-            if(already.contains(one)){
-                continue;
-            } else {
                 List<Point> pointList = pointNodeMap.get(one).getNextPointList();
                 already.add(one);
-                for (Point p:
-                     pointList) {
-                    pointQueue.offer(p.getPointId());
+                Iterator<Point> pointIterator = pointList.listIterator();
+                while (pointIterator.hasNext()){
+                    Point point = pointIterator.next();
+                    if (already.contains(point.getPointId())){
+                        continue;
+                    } else {
+                        pointQueue.offer(point.getPointId());
+                    }
                 }
-            }
+
         }
         return already;
     }
@@ -96,13 +100,16 @@ public class ConnectedGraph {
     public ConnectedGraph separateGraph(Integer pointId){
         List<MyEdge> newEdgeList = new ArrayList<MyEdge>();
         HashSet<Integer> newGraphPointSet = myBFS(pointId);
-        for (MyEdge myEdge:
-             pointEdgeList) {
-            if (myEdge.getUserIdFirst() == pointId || myEdge.getUserIdSecond() == pointId){
+        Iterator<MyEdge> myEdgeIterator = pointEdgeList.listIterator();
+        MyEdge myEdge = null;
+        while (myEdgeIterator.hasNext()) {
+            myEdge = myEdgeIterator.next();
+            if (newGraphPointSet.contains(myEdge.getUserIdFirst()) || newGraphPointSet.contains(myEdge.getUserIdSecond())){
                 //原始信息有用了吧，以空间换时间
                 newEdgeList.add(myEdge);
             }
         }
+
         return new ConnectedGraph(newEdgeList);
     }
 
@@ -123,5 +130,84 @@ public class ConnectedGraph {
             allPointSet.removeAll(connectedGraph.pointSet); //别忘了把顶点去掉，不然就死循环了
         }
         return connectedGraphs;
+    }
+
+    /**
+     * 利用自身边的构造信息构造最小生成树
+     * 注意，此时必须是一个连通图
+     * @return
+     */
+    public List<MyEdge> constructMST(){
+        List<MyEdge> myMSTEdgeList = new ArrayList<MyEdge>();
+        ArrayList<HashSet<Integer>> pointAlreadyHashSets = new ArrayList<HashSet<Integer>>();
+        //这是表示生成树中已经加了的点
+        Iterator<Integer> integerIterator = pointSet.iterator();
+        while (integerIterator.hasNext()){
+            HashSet<Integer> integers = new HashSet<Integer>();
+            integers.add(integerIterator.next());
+            pointAlreadyHashSets.add(integers);
+        }
+        //按照权值对边集合重排序，注意此时会更改原有数据
+        Collections.sort(pointEdgeList, new Comparator<MyEdge>() {
+            public int compare(MyEdge o1, MyEdge o2) {
+                int i = o1.getWeight() - o2.getWeight();
+                if(i > 0)
+                    return 1;
+                else if(i < 0)
+                    return -1;
+                return 0;
+            }
+        });
+
+        int edgeNum = pointSet.size() - 1;  //边数为结点数减1
+        Iterator<MyEdge> myEdgeIterator = pointEdgeList.listIterator();
+        while (myEdgeIterator.hasNext() && edgeNum > 0){
+            MyEdge myEdge = myEdgeIterator.next();
+            int pointOne = myEdge.getUserIdFirst();
+            int pointTwo = myEdge.getUserIdSecond();
+            int count1 = -1, count2 = -2;
+            for(int i=0; i<pointAlreadyHashSets.size(); i++){
+                HashSet<Integer> set = pointAlreadyHashSets.get(i);
+                if(set.contains(pointOne)){
+                    count1 = i;
+                }
+                if (set.contains(pointTwo)){
+                    count2 = i;
+                }
+            }
+            if (count1 < 0 || count2 < 0){System.err.println("结点不在树中");}
+            else if (count1 != count2){
+                HashSet set1 = pointAlreadyHashSets.get(count2);
+                HashSet set2 = pointAlreadyHashSets.get(count1);
+                if(count1 > count2){
+                    pointAlreadyHashSets.remove(count1);
+                    pointAlreadyHashSets.remove(count2);
+                } else {
+                    pointAlreadyHashSets.remove(count2);
+                    pointAlreadyHashSets.remove(count1);
+                }
+                set1.addAll(set2);
+                pointAlreadyHashSets.add(set1);
+                myMSTEdgeList.add(myEdge);
+                edgeNum --;
+            }
+        }
+
+        return myMSTEdgeList;
+    }
+
+    /**
+     * 向外界输出边权重之和
+     * @return
+     */
+    public int totalWeight(){
+        int totalWeight = 0;
+
+        for (MyEdge myEdge:
+             pointEdgeList) {
+            totalWeight += myEdge.getWeight();
+        }
+
+        return totalWeight;
     }
 }

@@ -27,15 +27,18 @@ public class TestMain {
         ConnectedGraph connectedGraphIter = null;
         while (connectedGraphIterator.hasNext()){
             connectedGraphIter = connectedGraphIterator.next();
-
-            if (null == maxConnectedGraph || maxConnectedGraph.size > max){
-                maxConnectedGraph = connectedGraphIterator.next();
+            if ((null == maxConnectedGraph || connectedGraphIter.size >= max) && connectedGraphIterator.hasNext()){
+                maxConnectedGraph = connectedGraphIter;
                 max = maxConnectedGraph.size;   //别忘了这一步，不然一直就是最后一个
+                continue;
             }
         }
         maxConnectedGraph.disPlayGraph();
 
         //第三步，构造最小生成树并输出
-        System.out.println(edgeList.size());
+        ConnectedGraph MST = new ConnectedGraph(maxConnectedGraph.constructMST());
+        System.out.println("*****************************************************");
+        System.out.println(MST.size);
+        System.out.println(MST.totalWeight());
     }
 }
